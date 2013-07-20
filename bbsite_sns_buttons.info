@@ -1,0 +1,6 @@
+name = BBSite SNS Buttons
+description = Display SNS buttons. For example, Facebook "Like" button, Google+ "+1" button, LINE button, Hatena bookmark button.
+core = 7.x
+package = BBSite
+version = '7.x-1.0'
+configure = 'admin/bbsite/sns_buttons'

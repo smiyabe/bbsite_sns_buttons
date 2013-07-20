@@ -1,0 +1,253 @@
+<?php
+/**
+ * @file
+ *
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function bbsite_sns_buttons_permission() {
+  $permissions['administer sns buttons'] = array(
+    'title' => t('Administer SNS Buttons settings.'),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function bbsite_sns_buttons_menu() {
+  $items['admin/bbsite/sns_buttons'] = array(
+    'title' => 'BBSite SNS Buttons Setting',
+    'description' => 'BBSite SNS Buttons Setting',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bbsite_sns_buttons_setup'),
+    'access arguments' => array('administer sns buttons'),
+    'file' => 'bbsite_sns_buttons.admin.inc',
+    'weight' => -20,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function bbsite_sns_buttons_theme() {
+  return array(
+    'bbsite_sns_buttons' => array(
+      'render element' => 'element',
+      'variables' => array('node' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function bbsite_sns_buttons_field_extra_fields() {
+  foreach (node_type_get_names() as $type => $name) {
+    $extra['node'][$type] = array(
+      'display' => array(
+        'sns_buttons' => array(
+          'label' => 'SNS Buttons',
+          'description' => 'Display SNS buttons. For example, Facebook "Like" button, Google+ "+1" button, LINE button, Hatena bookmark button.',
+          'weight' => 100,
+        ),
+      ),
+    );
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function bbsite_sns_buttons_node_view($node, $view_mode, $langcode) {
+  $node->content['sns_buttons'] = array(
+    '#theme' => 'bbsite_sns_buttons',
+    '#node' => $node,
+  );
+}
+
+/*
+ * implement hook_page_alter()
+ */
+function bbsite_sns_buttons_page_alter(&$page) {
+  if (variable_get('bbsite_sns_buttons_show_facebook', 1)) {
+    if (isset($page['page_top']) == false) {
+      $page['page_top'] = array();
+    }
+    $buff = bbsite_sns_buttons_write_facebook_api_js();
+    if ($buff) {
+      $page['page_top']['facebook'] = array('#markup' => $buff);
+    }
+  }
+}
+
+/**
+ * Google API 用 JavaScript
+ */
+function bbsite_sns_buttons_write_google_api_js() {
+  static $is_writed = false;
+
+  if ($is_writed == false) {
+    drupal_add_js('(function() {
+        var po = document.createElement("script"); po.type = "text/javascript"; po.async = true;
+        po.src = "https://apis.google.com/js/plusone.js";
+        var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(po, s);
+    })();', array('scope' => 'footer', 'type' => 'inline'));
+    $is_writed = true;
+  }
+}
+
+/**
+ * Google API 用 JavaScript
+ */
+function bbsite_sns_buttons_write_facebook_api_js() {
+  static $is_writed = false;
+
+  $buff = '';
+  if ($is_writed == false) {
+    $appid = variable_get('bbsite_sns_buttons_facebook_appid', '');
+
+    $buff .= '<div id="fb-root"></div>';
+    $buff .= '<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/all.js#xfbml=1' . (($appid)? ('&appid=' . $appid): '') . '";
+  fjs.parentNode.insertBefore(js, fjs);';
+    $buff .= "}(document, 'script', 'facebook-jssdk'));</script>";
+
+    $is_writed = true;
+  }
+
+  return $buff;
+}
+
+/**
+ * Twitter Widget 表示用 JavaScript
+ */
+function bbsite_sns_buttons_write_twitter_api_js() {
+  static $is_writed = false;
+
+  if ($is_writed == false) {
+    drupal_add_js("!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');", array('scope' => 'footer', 'type' => 'inline'));
+    $is_writed = true;
+  }
+}
+
+/**
+ * Hatena bookmark 表示用 JavaScript
+ */
+function bbsite_sns_buttons_write_hatena_api_js() {
+  static $is_writed = false;
+
+  if ($is_writed == false) {
+    drupal_add_js('http://b.st-hatena.com/js/bookmark_button.js', array('scope' => 'footer', 'type' => 'external', 'charset' => 'utf-8', 'async' => 'async'));
+    $is_writed = true;
+  }
+}
+
+/**
+ * LINE button 表示用 JavaScript
+ */
+function bbsite_sns_buttons_write_line_api_js() {
+  static $is_writed = false;
+
+  if ($is_writed == false) {
+    $is_writed = true;
+    return '<script type="text/javascript" src="http://media.line.naver.jp/js/line-button.js?v=20130508"></script>';
+  }
+
+  return '';
+}
+
+/**
+ * コンテンツに表示する SNS ボタン達のテーマ
+ */
+function theme_bbsite_sns_buttons($elements) {
+  $url = url('node/'.$elements['node']->nid, array('absolute' => true));
+  $title = $elements['node']->title;
+
+  $buff = array();
+
+  if (variable_get('bbsite_sns_buttons_show_line', 1)) {
+    $text = urlencode($title . "\r\n" . $url);
+    $text = $title . '\r\n\r\n' . $url;
+    if (variable_get('bbsite_sns_buttons_line_for_pc', 1)) {
+      $html_show_pc = '"pc":true';
+    } else {
+      $html_show_pc = '"pc":false';
+    }
+    $html_line_tag = '<span class="send-line-button">';
+    $html_line_tag .= bbsite_sns_buttons_write_line_api_js();
+    $html_line_tag .= '<script type="text/javascript">';
+    $html_line_tag .= '    new jp.naver.line.media.LineButton({' . $html_show_pc . ',"lang":"ja","type":"a","text":"' . $text . '","withUrl":false});';
+    $html_line_tag .= "</script>\n</span>";
+
+    $buff[] = $html_line_tag;
+  }
+
+  if (variable_get('bbsite_sns_buttons_show_hatena', 1)) {
+    if (variable_get('bbsite_sns_buttons_hatena_show_balloon', 1)) {
+      $html_hatena_balloon = 'data-hatena-bookmark-layout="standard-balloon"';
+    } else {
+      $html_hatena_balloon = 'data-hatena-bookmark-layout="standard-noballoon"';
+    }
+    $buff[] =<<< EOF
+<a href="http://b.hatena.ne.jp/entry/$url" class="hatena-bookmark-button" data-hatena-bookmark-title="$title" $html_hatena_balloon data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a>
+EOF;
+    bbsite_sns_buttons_write_hatena_api_js();
+  }
+
+  if (variable_get('bbsite_sns_buttons_show_twitter', 1)) {
+    $html_twitter_via = '';
+    if (variable_get('bbsite_sns_buttons_twitter_via', '')) {
+      $html_twitter_via = ' data-via="' . variable_get('bbsite_sns_buttons_twitter_via', '') . '"';
+    }
+    $html_twitter_related = '';
+    if (variable_get('bbsite_sns_buttons_twitter_related', '')) {
+      $html_twitter_related = ' data-related="' . variable_get('bbsite_sns_buttons_twitter_related', '') . '"';
+    }
+    $html_twitter_hashtags = '';
+    if (variable_get('bbsite_sns_buttons_twitter_hashtags', '')) {
+      $html_twitter_hashtags = ' data-hashtags="' . variable_get('bbsite_sns_buttons_twitter_hashtags', '') . '"';
+    }
+    $buff[] =<<< EOF
+<a href="https://twitter.com/share" class="twitter-share-button" data-width="80" data-url="$url" data-text="$title" $html_twitter_via $html_twitter_related $html_twitter_hashtags>Tweet</a>
+EOF;
+
+    bbsite_sns_buttons_write_twitter_api_js();
+  }
+
+  if (variable_get('bbsite_sns_buttons_show_facebook', 1)) {
+    $send = (variable_get('bbsite_sns_buttons_facebook_show_send', 1)? 'true': 'false');
+    $faces = (variable_get('bbsite_sns_buttons_facebook_show_faces', 1)? 'true': 'false');
+    $style = variable_get('bbsite_sns_buttons_facebook_style', 'standard');
+    $width = variable_get('bbsite_sns_buttons_facebook_width', 450);
+
+    $buff[] =<<< EOF
+<div class="fb-like" data-href="$url" data-send="$send" data-layout="$style" data-width="$width" data-show-faces="$faces"></div>
+EOF;
+  }
+
+  if (variable_get('bbsite_sns_buttons_show_googleplus', 1)) {
+    $width = variable_get('bbsite_sns_buttons_googleplus_width', 300);
+    $annotation = variable_get('bbsite_sns_buttons_googleplus_annotation', 'bubble');
+    $buff[] =<<< EOF
+<div class="g-plusone" data-href="$url" data-size="medium" data-annotation="$annotation" data-width="$width"></div>
+EOF;
+
+    bbsite_sns_buttons_write_google_api_js();
+  }
+
+  if (count($buff) == 0) {
+    return '';
+  }
+
+  return '<div class="snsbuttons">' . implode(' ', $buff) . '</div>';
+}
