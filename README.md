@@ -21,6 +21,7 @@
 (admin/structure/types/manage/ *Content Type* /display)。
 
 Default, Teaser, RSS 等のそれぞれで SNSボタンを表示するかしないかを設定します。
+また、それぞれの表示オプションが設定出来ます。
 
 
 ## 表示のカスタマイズについて
