@@ -44,5 +44,8 @@ template.php に上記テーマ関数を実装してください。
 - License: GPL v2
 - Repository:  https://github.com/smiyabe/bbsite_sns_buttons
 - Satoshi Miyabe (miyabe @ bbsite.jp)
+- [詳しい説明記事](http://bbsite.jp/blog/bbsite-sns-buttons-module-released "投稿の任意の位置に SNS のボタンを表示できるモジュールをつくりました | BBSite")
+
+
 
 
