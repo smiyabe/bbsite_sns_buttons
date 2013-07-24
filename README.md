@@ -21,6 +21,7 @@
 (admin/structure/types/manage/ *Content Type* /display)。
 
 Default, Teaser, RSS 等のそれぞれで SNSボタンを表示するかしないかを設定します。
+また、それぞれの表示オプションが設定出来ます。
 
 
 ## 表示のカスタマイズについて
@@ -34,11 +35,17 @@ template.php に上記テーマ関数を実装してください。
 コンテンツタイプ毎にこのモジュールを有効にするか否かを指定することが出来ますが、コン
 テンツタイプ毎に表示するボタンを切り換えることが出来ません。
 
+表示のプロパティ設定は適当です。ちゃんと作りたいのですが、自分のサイトで思い通りに動い
+てるので。
+
 
 ## ライセンスなど
 
 - License: GPL v2
 - Repository:  https://github.com/smiyabe/bbsite_sns_buttons
 - Satoshi Miyabe (miyabe @ bbsite.jp)
+- [詳しい説明記事](http://bbsite.jp/blog/bbsite-sns-buttons-module-released "投稿の任意の位置に SNS のボタンを表示できるモジュールをつくりました | BBSite")
+
+
 
 
