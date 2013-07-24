@@ -104,7 +104,7 @@ function bbsite_sns_buttons_write_google_api_js() {
 }
 
 /**
- * Google API 用 JavaScript
+ * Facebook API 用 JavaScript
  */
 function bbsite_sns_buttons_write_facebook_api_js() {
   static $is_writed = false;
