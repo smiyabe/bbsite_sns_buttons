@@ -129,6 +129,18 @@ function bbsite_sns_buttons_write_facebook_api_js() {
 }
 
 /**
+ * Pocket 用 JavaScript
+ */
+function bbsite_sns_buttons_write_pocket_api_js() {
+  static $is_writed = false;
+
+  if ($is_writed == false) {
+    drupal_add_js('!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");', array('scope' => 'footer', 'type' => 'inline'));
+    $is_writed = true;
+  }
+}
+
+/**
  * Twitter Widget 表示用 JavaScript
  */
 function bbsite_sns_buttons_write_twitter_api_js() {
@@ -233,6 +245,16 @@ EOF;
     $buff[] =<<< EOF
 <div class="fb-like" data-href="$url" data-send="$send" data-layout="$style" data-width="$width" data-show-faces="$faces"></div>
 EOF;
+  }
+
+  if (variable_get('bbsite_sns_buttons_show_pocket', 1)) {
+    $count = (variable_get('bbsite_sns_buttons_pocket_show_count', 1)? 'horizontal': 'none');
+
+    $buff[] =<<< EOF
+<a href="https://getpocket.com/save" class="pocket-btn" data-save-url="$url" data-pocket-count="$count" data-pocket-align="left" data-lang="en">Pocket</a>
+EOF;
+
+    bbsite_sns_buttons_write_pocket_api_js();
   }
 
   if (variable_get('bbsite_sns_buttons_show_googleplus', 1)) {

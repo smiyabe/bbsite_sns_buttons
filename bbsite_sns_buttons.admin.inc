@@ -113,6 +113,22 @@ function bbsite_sns_buttons_setup() {
     '#default_value' => variable_get('bbsite_sns_buttons_facebook_appid', ''),
   );
 
+  $form['pocket'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pocket button'),
+    '#weight' => 40,
+  );
+  $form['pocket']['show_pocket'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Pocket button'),
+    '#default_value' => variable_get('bbsite_sns_buttons_show_pocket', 1),
+  );
+  $form['pocket']['pocket_show_count'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Count'),
+    '#default_value' => variable_get('bbsite_sns_buttons_pocket_show_count', 1),
+  );
+
   $form['gplus'] = array(
     '#type' => 'fieldset',
     '#title' => t('Google+ +1 button'),
@@ -166,6 +182,8 @@ function bbsite_sns_buttons_setup_submit($form, &$form_state) {
   variable_set('bbsite_sns_buttons_facebook_style', $values['facebook_style']);
   variable_set('bbsite_sns_buttons_facebook_width', $values['facebook_width']);
   variable_set('bbsite_sns_buttons_facebook_appid', $values['facebook_appid']);
+  variable_set('bbsite_sns_buttons_show_pocket', $values['show_pocket']);
+  variable_set('bbsite_sns_buttons_pocket_show_count', $values['pocket_show_count']);
   variable_set('bbsite_sns_buttons_show_googleplus', $values['show_googleplus']);
   variable_set('bbsite_sns_buttons_googleplus_annotation', $values['googleplus_annotation']);
   variable_set('bbsite_sns_buttons_googleplus_width', $values['googleplus_width']);
